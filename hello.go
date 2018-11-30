@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"gitlab.com/jirapol/hello/name"
+	"github.com/jirapol/go02/name"
 )
 
 type human struct {
