@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
+
+	mux "github.com/gorilla/mux"
 )
 
 type apiHandler struct{}
@@ -10,11 +12,13 @@ type apiHandler struct{}
 func (apiHandler) ServeHTTP(http.ResponseWriter, *http.Request) {}
 
 func main() {
-	mux := http.NewServeMux()
-	mux.Handle("/api/", apiHandler{})
-	mux.HandleFunc("/", getindex)
+	vmux := mux.NewRouter()
 
-	http.ListenAndServe(":8080", mux)
+	vmux.Handle("/api/", apiHandler{})
+	vmux.HandleFunc("/", getindex)
+	vmux.HandleFunc("/greets/{name}", greets)
+
+	http.ListenAndServe(":8080", vmux)
 }
 
 func getindex(w http.ResponseWriter, req *http.Request) {
@@ -26,4 +30,14 @@ func getindex(w http.ResponseWriter, req *http.Request) {
 	}
 	w.Header().Set("Content-type", "application/json")
 	fmt.Fprintf(w, "{\"content\":\"Welcome to the home page!\"}")
+}
+
+func greets(w http.ResponseWriter, req *http.Request) {
+	// The "/" pattern matches everything, so we need to check
+	// that we're at the root here.
+	vars := mux.Vars(req)
+	name := vars["name"]
+	w.Header().Set("Content-type", "application/json")
+	fmt.Fprintf(w, "{\"content\":\"Hello "+name+"\"}")
+
 }
